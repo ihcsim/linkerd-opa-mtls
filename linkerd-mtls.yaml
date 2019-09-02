@@ -1,0 +1,49 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: linkerdmtls
+spec:
+  crd:
+    spec:
+      names:
+        kind: LinkerdMTLS
+        listKind: LinkerdMTLSList
+        plural: linkerdmtlsconstraints
+        singular: linkerdmtlsconstraint
+        shortNames: ["l5d-mtls"]
+      validation:
+        openAPIV3Schema:
+          properties:
+            labels:
+              type: array
+              items: string
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package l5dmtls
+
+      violation[{"msg":msg, "details":{}}] {
+        c := input_containers[_]
+        required := input.parameters.proxy
+        c.name != required
+        msg := sprintf("The workload must be injected with the Linkerd proxy: %s", [required])
+      }
+
+      input_containers[c] {
+        c := input.review.object.spec.containers[_]
+      }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: LinkerdMTLS
+metadata:
+  name: requiredproxy
+spec:
+  match:
+    kinds:
+    - apiGroups: ["apps"]
+      kinds: ["Deployment"]
+    - apiGroups: [""]
+      kinds: ["Pod"]
+  parameters:
+    proxy: "linkerd-proxy"
