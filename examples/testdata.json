@@ -1,0 +1,63 @@
+{
+  "pods": [
+    {
+      "name": "pod-00",
+      "automountServiceAccountToken": true,
+      "metadata": {
+        "annotations": {
+          "linkerd.io/inject": "disabled"
+        }
+      },
+      "containers": [
+        {"name":"c-00", "image":"image-00", "port": 80, "privileged": true},
+        {"name":"c-01", "image":"image-01", "port": 5000, "privileged": false}
+      ]
+    },
+    {
+      "name": "pod-01",
+      "automountServiceAccountToken": true,
+      "metadata": {
+        "annotations": {
+          "linkerd.io/inject": "enabled"
+        }
+      },
+      "containers": [
+        {"name":"c-02", "image":"image-02", "port": 8443, "privileged": false},
+        {"name":"linkerd-proxy", "image":"proxy", "port": 4191, "privileged": false}
+      ]
+    },
+    {
+      "name": "pod-02",
+      "automountServiceAccountToken": false,
+      "metadata": {
+        "annotations": {
+          "linkerd.io/inject": "enabled"
+        }
+      },
+      "containers": [
+        {"name":"linkerd-proxy", "image":"proxy", "port": 4191, "privileged": false},
+        {"name":"c-03", "image":"image-02", "port": 8443, "privileged": false}
+      ]
+    },
+    {
+      "name": "pod-03",
+      "automountServiceAccountToken": true,
+      "metadata": {
+        "annotations": {}
+      },
+      "containers": [
+        {"name":"c-01", "image":"image-01", "port": 5000, "privileged": false}
+      ]
+    },
+    {
+      "name": "pod-04",
+      "automountServiceAccountToken": true,
+      "metadata": {
+        "annotations": {}
+      },
+      "containers": [
+        {"name":"c-02", "image":"image-04", "port": 5000, "privileged": false}
+      ]
+    }
+  ]
+}

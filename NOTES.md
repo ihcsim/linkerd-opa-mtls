@@ -8,6 +8,10 @@ Format:
 * Using Prometheus to alert on unencrypted traffic
 * Demo
 
+## Relevant Tools
+
+* [ksniff](https://github.com/eldadru/ksniff)
+
 ## About opa-istio
 High-level information:
 
