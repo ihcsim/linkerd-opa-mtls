@@ -1,16 +1,15 @@
 apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
-  name: linkerdmtls
+  name: l5dmtls
 spec:
   crd:
     spec:
       names:
-        kind: LinkerdMTLS
-        listKind: LinkerdMTLSList
-        plural: linkerdmtlsconstraints
-        singular: linkerdmtlsconstraint
-        shortNames: ["l5d-mtls"]
+        kind: L5dmTLS
+        listKind: L5dmTLSList
+        plural: l5dmtls
+        singular: l5dmtls
       validation:
         openAPIV3Schema:
           properties:
@@ -20,24 +19,24 @@ spec:
   targets:
   - target: admission.k8s.gatekeeper.sh
     rego: |
-      package l5dmtls
+      package linkerd.io
+
+      import input.review.object.spec
 
       violation[{"msg":msg, "details":{}}] {
-        c := input_containers[_]
-        required := input.parameters.proxy
-        c.name != required
-        msg := sprintf("The workload must be injected with the Linkerd proxy: %s", [required])
+        not injected
+        msg := sprint("The workload must be injected with the Linkerd proxy")
       }
 
-      input_containers[c] {
-        c := input.review.object.spec.containers[_]
+      injected {
+        input.review.object.spec.containers[_] == "linkerd-proxy"
       }
 
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
-kind: LinkerdMTLS
+kind: L5dmTLS
 metadata:
-  name: requiredproxy
+  name: linkerd-mtls-policies
 spec:
   match:
     kinds:
