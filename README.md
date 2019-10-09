@@ -17,3 +17,9 @@ To remove both Linkerd and OPA Gatekeeper,
 ```
 make clean
 ```
+
+## Development
+To test the mTLS rules, run:
+```
+make test
+```
