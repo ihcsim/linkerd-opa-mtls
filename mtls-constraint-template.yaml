@@ -1,0 +1,53 @@
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: linkerdmutualtls
+  labels:
+    policy.linkerd.io: mtls
+spec:
+  crd:
+    spec:
+      names:
+        kind: LinkerdMutualTLS
+        plural: mtls
+        singular: mtls
+        shortNames: ["mtls"]
+      validation:
+        openAPIV3Schema:
+          properties:
+            labels:
+              type: array
+              items: string
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package linkerd
+
+      violation[{"msg":msg, "details":{}}] {
+        containers := input.review.object.spec.containers
+        parameters := input.parameters
+
+        proxy := { proxy |
+          containers[i].name == parameters.proxy.name
+          proxy := containers[i]
+        }
+        count(proxy) == 0
+        msg := sprintf("Missing proxy sidecar container: %v", [parameters.proxy.name])
+      }
+
+      violation[{"msg":msg, "details":{}}] {
+        containers := input.review.object.spec.containers
+        parameters := input.parameters
+
+        env := { variable: value |
+          containers[i].name == parameters.proxy.name
+          proxy := containers[i]
+
+          parameters.env[j].name == proxy.env[k].name
+          parameters.env[j].value == proxy.env[k].value
+          variable := proxy.env[k].name
+          value := proxy.env[k].value
+        }
+        count(env) == 0
+        msg := sprintf("Missing required environment variable: %v=%v", [parameters.env[j].name, parameters.env[j].value])
+      }
