@@ -20,6 +20,11 @@ Format:
   * We showed you the basic; here are more stuff you can do on your own
   * Runtime policy enforcement
 
+## Questions
+
+1. Any documentation on how Gatekeeper's rego is different?
+1. Why is there a limitation on the name of the constraint template? i.e. must match CRD kind
+
 ## About Linkerd mTLS Constraints
 Use multiple rules in the `violation` rule. By default, when multiple
 expressions are joined together in a query, you are expressing logical AND. To
