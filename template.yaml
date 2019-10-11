@@ -21,7 +21,7 @@ spec:
   targets:
   - target: admission.k8s.gatekeeper.sh
     rego: |
-      package linkerd
+      package linkerd.io
 
       violation[{"msg":msg, "details":{}}] {
         containers := input.review.object.spec.containers
@@ -39,15 +39,13 @@ spec:
         containers := input.review.object.spec.containers
         parameters := input.parameters
 
-        env := { variable: value |
+        env := { variable |
           containers[i].name == parameters.proxy.name
           proxy := containers[i]
 
           parameters.env[j].name == proxy.env[k].name
-          parameters.env[j].value == proxy.env[k].value
           variable := proxy.env[k].name
-          value := proxy.env[k].value
         }
         count(env) == 0
-        msg := sprintf("Missing required environment variable: %v=%v", [parameters.env[j].name, parameters.env[j].value])
+        msg := sprintf("Missing required environment variable: %v", [parameters.env[j].name])
       }
