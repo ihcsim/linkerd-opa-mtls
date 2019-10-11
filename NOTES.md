@@ -24,6 +24,7 @@ Format:
 
 1. Any documentation on how Gatekeeper's rego is different?
 1. Why is there a limitation on the name of the constraint template? i.e. must match CRD kind
+1. Are multiple `violation` rules AND'd together?
 
 ## About Linkerd mTLS Constraints
 Use multiple rules in the `violation` rule. By default, when multiple

@@ -44,8 +44,13 @@ spec:
           proxy := containers[i]
 
           parameters.env[j].name == proxy.env[k].name
-          variable := proxy.env[k].name
+          variable := parameters.env[j].name
         }
         count(env) == 0
         msg := sprintf("Missing required environment variable: %v", [parameters.env[j].name])
+      }
+
+      violation[{"msg":msg, "details":{}}] {
+        input.review.object.spec.automountServiceAccountToken != true
+        msg := "automountServiceAccountToken must be set to 'true' to enable mTLS identity"
       }
