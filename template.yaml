@@ -23,26 +23,19 @@ spec:
     rego: |
       package linkerd.io
 
-      violation[{"msg":msg, "details":{}}] {
-        containers := input.review.object.spec.containers
-        parameters := input.parameters
+      spec = input.review.object.spec
+      parameters = input.parameters
 
-        proxy := { proxy |
-          containers[i].name == parameters.proxy.name
-          proxy := containers[i]
-        }
-        count(proxy) == 0
+      violation[{"msg":msg, "details":{}}] {
+        containers := spec.containers
+        not proxy(containers, parameters)
         msg := sprintf("Missing proxy sidecar container: %v", [parameters.proxy.name])
       }
 
       violation[{"msg":msg, "details":{}}] {
-        containers := input.review.object.spec.containers
-        parameters := input.parameters
-
+        containers := spec.containers
         env := { variable |
-          containers[i].name == parameters.proxy.name
-          proxy := containers[i]
-
+          proxy := find_proxy(containers, parameters)
           parameters.env[j].name == proxy.env[k].name
           variable := parameters.env[j].name
         }
@@ -51,6 +44,15 @@ spec:
       }
 
       violation[{"msg":msg, "details":{}}] {
-        input.review.object.spec.automountServiceAccountToken != true
+        spec.automountServiceAccountToken != true
         msg := "automountServiceAccountToken must be set to 'true' to enable mTLS identity"
+      }
+
+      proxy(containers, parameters) {
+        spec.containers[_].name == parameters.proxy.name
+      }
+
+      find_proxy(containers, parameters) = proxy {
+        spec.containers[i].name == parameters.proxy.name
+        proxy := spec.containers[i]
       }
