@@ -23,6 +23,7 @@ spec:
     rego: |
       package linkerd.io
 
+      meta = input.review.object.metadata
       spec = input.review.object.spec
       parameters = input.parameters
 
@@ -30,6 +31,16 @@ spec:
         containers := spec.containers
         not proxy(containers, parameters)
         msg := sprintf("Missing proxy sidecar container: %v", [parameters.proxy.name])
+      }
+
+      violation[{"msg":msg, "details":{}}]{
+        containers := spec.containers
+        annotation := { annotation |
+          parameters.metadata.annotations[key] == meta.annotations[key]
+          annotation := parameters.metadata.annotations[key]
+        }
+        count(annotation) == 0
+        msg := sprintf("Missing required annotation %v=%v", [key, parameters.metadata.annotations[key]])
       }
 
       violation[{"msg":msg, "details":{}}] {
