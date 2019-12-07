@@ -1,4 +1,4 @@
-# Linkerd OPA mTLS
+# OPA 101
 This project is an experiment to ensure the [Linkerd](https://linkerd.io) mTLS by using the [OPA Gatekeeper](https://github.com/open-policy-agent/gatekeeper) to enforce certain workload admission policies.
 
 ## Getting Started
